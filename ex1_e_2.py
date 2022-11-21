@@ -4,13 +4,21 @@ connection = None
 cursor = None
 useEmbedding = False
 
+print("1 - Embedding")
+print("2 - Linking")
+ip = input("Voce quer usar o embedding ou linking: ")
+if(ip == 1): 
+    useEmbedding = True
+    print("Embedding selecionado!")
+else:
+    useEmbedding = False
+    print("Linking selecionado!")
+
 script1P = './script1.txt'
 script2P = './script2.txt'
-script3P = './script3.txt'
 
 script1 = open(script1P, 'w')
 script2 = open(script2P, 'w')
-script3 = open(script3P, 'w')
 
 def verifyIfIsTheFirstColumn(addedColumns):
     for addedColumn in addedColumns:
@@ -25,8 +33,8 @@ def addTupla(col, val, isId=False):
     else:
         command = col['name'] + ': '
     colType = col['type'] 
-    if(colType == 'VARCHAR2' or colType == 'CHAR' or colType == 'VARCHAR'):
-        command += '" {value} "'.format(value=val)
+    if(colType == 'VARCHAR2' or colType == 'CHAR' or colType == 'VARCHAR' or colType == 'DATE'):
+        command += '"{value}"'.format(value=val)
     else:
         command += ' {value} '.format(value=val)
     
@@ -130,7 +138,7 @@ def addRef(refTupla, fkTable, fk):
             if(fkTable['columns'][k]['name'] == fk['columns'][j]['column'] ):
                 if(refTupla[k] == None):
                     return ""
-                fkValues.append({'column':fk['columns'][j]['column'], 'value':refTupla[k], 'position':fk['columns'][j]['position']})
+                fkValues.append({'column':fk['columns'][j]['column'],'type':fkTable['columns'][k]['type'], 'value':refTupla[k], 'position':fk['columns'][j]['position']})
     
     command = fk['relatedTable']['name'] + "_id: "
     if(len(fkValues) > 1):
@@ -139,12 +147,19 @@ def addRef(refTupla, fkTable, fk):
         for i in range(len(fk['relatedTable']['columns'])):
             for j in range(len(fkValues)):
                     if(fk['relatedTable']['columns'][i]['position'] == fkValues[j]['position']):
-                        command += fk['relatedTable']['columns'][i]['column'] + ": {value}".format(value=fkValues[j]['value']) 
+                        command += fk['relatedTable']['columns'][i]['column'] + ": "
+                        if(fkValues[j]['type'] == 'VARCHAR2' or fkValues[j]['type'] == 'CHAR' or fkValues[j]['type'] == 'VARCHAR' or fkValues[j]['type'] == 'DATE'):
+                            command += '"{value}"'.format(value=fkValues[j]['value'])
+                        else:
+                            command += ' {value} '.format(value=fkValues[j]['value'])
 
         
         command += '}'
     else:
-        command += " {value}".format(value=fkValues[0]['value']) 
+        if(fkValues[0]['type'] == 'VARCHAR2' or fkValues[0]['type'] == 'CHAR' or fkValues[0]['type'] == 'VARCHAR' or fkValues[0]['type'] == 'DATE'):
+            command += '"{value}"'.format(value=fkValues[0]['value'])
+        else:
+            command += ' {value} '.format(value=fkValues[j]['value'])
 
     return command
 
@@ -221,16 +236,7 @@ def createTableIndex(table):
     pksString = ""
     first = True
     command = ""
-    if(len(table['pk']) > 0):
-        for pk in table['pk']:
-            if first:
-                first = False
-            else:
-                pksString += ' , '
-            
-            pksString += pk['column']
-
-        command += 'db.{tableName}.ensureIndex({pk})\n'.format(tableName=table['name'],pk=[pksString])
+    command += 'db.{tableName}.ensureIndex({pk})\n'.format(tableName=table['name'],pk="{"+"_id:1"+"}")
 
     if(len(table['unique'].keys()) > 0):
         print("\n\n")
@@ -238,16 +244,34 @@ def createTableIndex(table):
         print("\n\n")
         uniqueString = ""
         first = True
+        
         for uiniqueKey in table['unique'].keys():
+            addedsFks = {}
             for uiniqueCol in table['unique'][uiniqueKey]['columns']:
-                if first:
-                    first = False
-                else:
-                    uniqueString += ' , '
-            
-                uniqueString += uiniqueCol['column']
+                fkadd = False
+                
+                
+                for fk in table['fks'].keys():
+                    for fkCol in table['fks'][fk]['columns']:
+                        if( fkCol['column'] == uiniqueCol['column'] ):
+                            addedsFks.setdefault(table['fks'][fk]['relatedTable']['name'], 1) 
+                            fkadd = True
 
-        command += 'db.{tableName}.ensureIndex({unique})\n'.format(tableName=table['name'],unique=[uniqueString])
+                if(fkadd == False):
+                    if first:
+                        first = False
+                    else:
+                        uniqueString += ' , '
+                    uniqueString += uiniqueCol['column'] + ": 1"
+        
+        for tableName in addedsFks.keys():
+            if first:
+                first = False
+            else:
+                uniqueString += ' , '
+            uniqueString += tableName + "_id: 1"
+
+        command += 'db.{tableName}.ensureIndex({unique})\n'.format(tableName=table['name'],unique="{"+uniqueString+"}")
 
     
     script2.write(command)
@@ -360,7 +384,7 @@ try:
                 addedColumns.append(0)
 
             # print(tupla)
-            command = 'db.'+table['name']+'.create({'
+            command = 'db.'+table['name']+'.insertOne({'
             if(len(table['pk']) > 0):
 
                 #Creating pk
@@ -436,10 +460,5 @@ try:
 
             script1.write(command + '\n')
    
-    #     command = 'db.'+table['name']+'.create('
-    #     for()
-    #     command = 
-    #     command = ')'
-    #     print()
 except ValueError:
     print(ValueError)

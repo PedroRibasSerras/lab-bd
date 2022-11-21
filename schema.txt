@@ -1,0 +1,155 @@
+db.createCollection("LE01ESTADO", {
+   validator: {
+      $jsonSchema: {
+         required: ["_id","NOME"],
+         bsonType: "object"
+      }
+   }
+} )
+
+
+db.createCollection("LE02CIDADE", {
+   validator: {
+      $jsonSchema: {
+         required: ["_id","POPULACAO"],
+         bsonType: "object"
+      }
+   }
+} )
+
+db.createCollection("LE03ZONA", {
+   validator: {
+      $jsonSchema: {
+         required: ["_id","NRODEURNASRESERVAS"],
+         bsonType: "object"
+      }
+   }
+} )
+
+db.createCollection("LE04BAIRRO", {
+   validator: {
+      $jsonSchema: {
+         required: ["_id","NROZONA"],
+         bsonType: "object"
+      }
+   }
+} )
+
+db.createCollection("LE05URNA", {
+   validator: {
+      $jsonSchema: {
+         required: ["_id"],
+         bsonType: "object"
+      }
+   }
+} )
+
+
+db.createCollection("LE06SESSAO", {
+   validator: {
+      $jsonSchema: {
+         required: ["_id","NSERIAL"],
+         bsonType: "object"
+      }
+   }
+} )
+
+
+db.createCollection("LE07PARTIDO", {
+   validator: {
+      $jsonSchema: {
+         required: ["_id","NOME"],
+         bsonType: "object"
+      }
+   }
+} )
+
+
+db.createCollection("LE08CANDIDATO", {
+   validator: {
+      $jsonSchema: {
+         required: ["_id","TIPO","NOME"],
+         bsonType: "object",
+         properties: {
+            TIPO: {
+               enum:[ "politico", "especial"]
+            }
+         }
+      }
+   }
+} )
+
+
+db.createCollection("LE09CARGO", {
+   validator: {
+      $jsonSchema: {
+         required: ["_id","POSSUIVICE","ANOBASE","ANOSMANDATO","NOMEDESCRITIVO","NRODECADEIRAS","ESFERA"],
+         bsonType: "object",
+         properties: {
+            NRODECADEIRAS: {
+               "bsonType": "number",
+               "minimum": 0
+            },
+            ANOSMANDATO: {
+               "bsonType": "number",
+               "minimum": 0
+            },
+            ANOBASE: {
+               "bsonType": "number",
+               "minimum": 1985,
+               "maximum": 2100
+            },
+            POSSUIVICE: {
+               enum:[ 0, 1]
+            },
+            ESFERA:{
+               enum:[ 'F','E','M']
+            }
+         }
+      }
+   }
+} )
+
+
+db.createCollection("LE10CANDIDATURA", {
+   validator: {
+      $jsonSchema: {
+         required: ["_id","CODCARGO","ANO","NROCAND"],
+         bsonType: "object",
+         properties: {
+            ANO: {
+               "bsonType": "number",
+               "minimum": 1985,
+               "maximum": 2100
+            }
+         }
+      }
+   }
+} )
+
+
+
+db.createCollection("LE12PESQUISA", {
+   validator: {
+      $jsonSchema: {
+         required: ["_id","PERIODOINICIO","PERIODOFIM"],
+         bsonType: "object"
+      }
+   }
+} )
+
+
+db.createCollection("LE13INTENCAODEVOTO", {
+   validator: {
+      $jsonSchema: {
+         required: ["_id","TOTAL"],
+         bsonType: "object",
+         properties: {
+            TOTAL: {
+              bsonType: "number",
+            }
+         }
+      }
+   }
+} )
+

@@ -1,0 +1,10 @@
+#!/bin/bash
+
+sudo apt install python3
+sudo apt install pip
+
+pip install pymongo
+pip install pandas
+pip install numpy
+pip install ipython
+pip install cx_oracle

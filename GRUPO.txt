@@ -1,0 +1,19 @@
+Aluno                   NUSP
+Pedro Ribas Serras      11234328
+Bruno Tome Rosa         10276654
+
+Para rodar o programa é necessário ter o client da oracle instalado corretamente.
+
+Para baixar as dependencias no linux utilize o seguinte comando:
+
+sudo ./install.sh
+
+É necessário utilizar o sudo. 
+
+Rodando o script ex1_e_2.py serão geradas as migrações pedidas no ex 1 e 2 e
+serão salvas nos arquivos, respectivamente: script1.txt e script2.txt
+
+O Exercicio 3 é o arquivo schema.txt
+
+E pararodar o exercício 4 é só rodar o script ex4.py
+
